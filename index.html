@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style> 
+  
+    html {
+      height: 100%;
+    }
+
+    body{
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: url(./pic/透明.png);
+      background-color: black;
+      background-size: cover;
+      background-repeat: no-repeat;
+      text-align: center;
+    }
+
+
+    #kitchen {
+      position: relative;
+      width: 60%;
+      height: 80%;
+      background-image: url(./pic/kitchen.jpg);
+      background-size:cover;
+      overflow: hidden;
+      cursor: url(./pic/鍋鏟.png) 10 20, auto;
+      margin: auto;
+      top:70px;
+    }
+    #kitchen img {
+      position: absolute;
+      /* 無法被選取 */
+      user-select: none;
+      /* 無法拖曳 */
+      -webkit-user-drag: none;
+      -webkit-user-select: none;
+    }
+
+    .button {
+      width: 300px;
+      background: transparent;
+      position: absolute;
+      font-size: 60px;
+      font-family: "HonyaJi-Re";
+      color: #FFFFFF;
+      border: 1px solid;
+      border-radius: 10px;
+      display: inline-block;
+      cursor: url(./pic/鍋鏟.png) 10 20, auto;
+      right: 450px;
+      top: 189px;
+      display: inline-block;
+      z-index: 5;
+      border: none;
+    }
+    .button:hover{
+      font-weight: bold;
+      border-radius: 10px;
+    }
+
+    p {
+      position: absolute;
+      font-size: 40px;
+      font-family: "HonyaJi-Re";
+      left: 20.5%;
+      color: #FFFFFF;
+      top:200px;
+      margin: auto;
+    }
+
+    h1{
+      color: #FFFFFF;
+      font-size:60px;
+      font-family: IcicleCountryTwo,"HonyaJi-Re";
+    }
+
+    audio{
+      width: 500px;
+      position: absolute;
+      margin: auto;
+      padding: 0;
+      left:10px;
+      top:10px;
+    }
+
+    #wrap{
+      width: 100%;
+      height: 100%;
+    }
+
+    .hat{
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      top: 15px;
+      right: 37%;
+      transform: rotate(13deg);
+    }
+
+    .tib{
+      position:absolute;
+      width: 650px;
+      height: 300px;
+      top: -50px;
+      right: 36%;
+      z-index: -11;
+      
+    }
+
+
+  </style>
+</head>
+<body>
+  <!-- <audio src="./sponge.mp3" autoplay="autoplay"></audio> -->
+  <!-- <div class="box"><img src="./44ebd132c969572eda4d4de64c119b34.png" id="title"></div> -->
+  <h1 class="h1">美味蟹堡大作戰 <br> Krabby Patty Panic </h1>
+  <audio controls autoplay>  
+    <source src="./pic/sponge.mp3" type="audio/mp3">  
+  </audio>  
+  <input type="button" value="START" id="btn-start" class="button">
+  <p>
+  分數: <span id="text-score"> 0 </span> 分 剩餘: <span id="text-time"> 0 </span> 秒</p>
+  <div id="kitchen"></div>
+
+  <img class="hat" src="./pic/hat.png" alt="">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <script>
+  let score = 0
+  let countdown = 15
+  let timer = 0
+
+  function move (krabby){
+    const top = Math.round(Math.random() * 80) + '%'
+    const left = Math.round(Math.random() * 80) + '%'
+    krabby.stop().animate({ top,left },1500,function(){
+    move(krabby)
+    })
+  }
+  
+
+  $('#btn-start').click(function(){
+    // 停用
+    $(this).attr('disabled', true)
+    // 歸零
+    score = 0
+    $('#text-score').text(score)
+    // 秒數
+    countdown = 30
+    $('#text-time').text(countdown)
+    // 開始
+    timer = setInterval(function(){
+      // 倒數
+      countdown--
+      $('#text-time').text(countdown)
+
+      // 肉餅
+      const random = Math.round(Math.random() * 9)
+      // 幾塊肉餅
+      if (random > 3 && $('#kitchen img').length < 20) {
+        const top = Math.round(Math.random() * 80) + '%'
+        const left = Math.round(Math.random() * 80) + '%'
+        const krabby = $(`<img src="./pic/krabby.png" class="krabby" style="top: ${top};left:${left}">`)
+        $('#kitchen').append(krabby)
+        move(krabby)
+      }
+
+      if (countdown <= 0){
+          clearInterval(timer)
+          $('#kitchen img').remove()
+          $('#btn-start').attr('disabled', false)
+          // alert(`時間到，你得到${score}分`)
+          Swal.fire({
+            title:'遊戲結束',
+            text:`時間到，你得到${score}分`,
+            icon:'info'
+          })
+      }
+    },1000)
+  })
+
+  $('#kitchen').on('click', '.krabby', function(){
+    $(this).attr('src','pic/krabbypatty.png')
+    $(this).removeClass('krabby').addClass('pic/krabbypatty.png')
+    $(this).stop()
+    score++
+    $('#text-score').text(score)
+
+    const audio = new Audio()
+    audio.src = './煎.mp3'
+    audio.play()
+  })
+  
+  
+  
+  </script>
+
+
+</body>
+</html>
